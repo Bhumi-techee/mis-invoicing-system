@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Invoice | MIS System</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+body{font-family:'Inter',sans-serif;background:#f8f9fa;}
+.sidebar{width:250px;min-height:100vh;background:#1e2a3a;position:fixed;top:0;left:0;z-index:100;display:flex;flex-direction:column;}
+.sidebar-brand{padding:20px 24px;border-bottom:1px solid #2d3d50;font-size:20px;font-weight:700;color:#fff;}
+.sidebar-brand span{color:#4dabf7;}
+.sidebar-nav{flex:1;padding:12px 0;overflow-y:auto;}
+.nav-link-item{display:flex;align-items:center;gap:10px;padding:10px 24px;color:#8fa3b8;font-size:14px;font-weight:500;cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:all 0.2s;}
+.nav-link-item:hover{color:#fff;background:#2d3d50;}
+.nav-link-item.active{color:#4dabf7;background:rgba(77,171,247,0.1);border-left:3px solid #4dabf7;}
+.nav-link-item.disabled{opacity:0.35;pointer-events:none;}
+.nav-link-item i{font-size:16px;width:20px;}
+.sidebar-footer{padding:16px;border-top:1px solid #2d3d50;}
+.user-card{background:#2d3d50;border-radius:10px;padding:12px;}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:#4dabf7;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:14px;flex-shrink:0;}
+.main-content{margin-left:250px;min-height:100vh;}
+.topbar{background:#fff;border-bottom:1px solid #e9ecef;padding:14px 28px;position:sticky;top:0;z-index:50;}
+.page-content{padding:28px;}
+.stat-card{background:#fff;border-radius:12px;padding:22px;border:1px solid #e9ecef;}
+.stat-icon{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;}
+.auth-wrapper{min-height:100vh;background:linear-gradient(135deg,#1e2a3a 0%,#2d3d50 100%);display:flex;align-items:center;justify-content:center;}
+.auth-card{background:#fff;border-radius:16px;padding:40px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+.auth-logo{font-size:22px;font-weight:700;color:#1e2a3a;}
+.auth-logo span{color:#4dabf7;}
+.table-card{background:#fff;border-radius:12px;border:1px solid #e9ecef;overflow:hidden;}
+.table thead th{background:#1e2a3a;color:#fff;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;border:none;padding:14px 16px;}
+.table tbody tr:hover{background:#f8f9fa;}
+.table td{padding:13px 16px;vertical-align:middle;font-size:14px;border-color:#f0f0f0;}
+.form-section{background:#fff;border-radius:12px;border:1px solid #e9ecef;padding:28px;max-width:500px;}
+.form-label{font-size:13px;font-weight:600;color:#495057;}
+.form-control,.form-select{font-size:14px;border-radius:8px;border:1.5px solid #dee2e6;padding:10px 14px;}
+.form-control:focus,.form-select:focus{border-color:#4dabf7;box-shadow:0 0 0 3px rgba(77,171,247,0.15);}
+.btn-primary{background:#4dabf7;border-color:#4dabf7;font-weight:600;}
+.btn-primary:hover{background:#339af0;border-color:#339af0;}
+.btn-warning{background:#f59f00;border-color:#f59f00;color:#fff;font-weight:600;}
+.btn-warning:hover{background:#e67700;border-color:#e67700;color:#fff;}
+.btn-danger{font-weight:600;}
+.badge-active{background:#d3f9d8;color:#2f9e44;font-size:11px;padding:4px 10px;border-radius:20px;font-weight:600;}
+.session-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;display:none;align-items:center;justify-content:center;}
+.session-overlay.show{display:flex;}
+.page{display:none;}
+.page.active{display:block;}
+.auth-page{display:none;}
+.auth-page.active{display:flex;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="auth-page active" id="page-login">
+<div class="auth-wrapper w-100">
+<div class="auth-card">
+  <div class="auth-logo mb-1">Invoice <span>| MIS</span></div>
+  <h5 class="fw-bold mb-1">Welcome back</h5>
+  <p class="text-muted small mb-4">Sign in to your account to continue</p>
+  <div class="alert alert-danger d-none" id="login-error"></div>
+  <div class="mb-3"><label class="form-label">Email Address</label><input type="email" class="form-control" id="login-email" placeholder="you@example.com"/></div>
+  <div class="mb-3"><label class="form-label">Password</label><input type="password" class="form-control" id="login-password" placeholder="Enter your password"/></div>
+  <div class="text-end mb-3"><a href="#" class="text-primary small" onclick="showAuthPage('page-forgot')">Forgot Password?</a></div>
+  <button class="btn btn-primary w-100 py-2" onclick="doLogin()">Sign In</button>
+  <p class="text-center text-muted small mt-3">Don't have an account? <a href="#" class="text-primary" onclick="showAuthPage('page-register')">Register</a></p>
+</div>
+</div>
+</div>
+
+<!-- REGISTER -->
+<div class="auth-page" id="page-register">
+<div class="auth-wrapper w-100">
+<div class="auth-card">
+  <div class="auth-logo mb-1">Invoice <span>| MIS</span></div>
+  <h5 class="fw-bold mb-1">Create Account</h5>
+  <p class="text-muted small mb-4">Register a new user account</p>
+  <div class="alert alert-danger d-none" id="reg-error"></div>
+  <div class="alert alert-success d-none" id="reg-success"></div>
+  <div class="mb-3"><label class="form-label">Full Name</label><input type="text" class="form-control" id="reg-name" placeholder="Enter your full name"/></div>
+  <div class="mb-3"><label class="form-label">Email Address</label><input type="email" class="form-control" id="reg-email" placeholder="you@example.com"/></div>
+  <div class="mb-3"><label class="form-label">Password</label><input type="password" class="form-control" id="reg-password" placeholder="Create a password"/></div>
+  <div class="mb-3"><label class="form-label">Role</label><select class="form-select" id="reg-role"><option value="">Select Role</option><option value="admin">Admin</option><option value="salesperson">Salesperson</option></select></div>
+  <button class="btn btn-primary w-100 py-2" onclick="doRegister()">Register</button>
+  <p class="text-center text-muted small mt-3">Already have an account? <a href="#" class="text-primary" onclick="showAuthPage('page-login')">Sign In</a></p>
+</div>
+</div>
+</div>
+
+<!-- FORGOT PASSWORD -->
+<div class="auth-page" id="page-forgot">
+<div class="auth-wrapper w-100">
+<div class="auth-card">
+  <div class="auth-logo mb-1">Invoice <span>| MIS</span></div>
+  <h5 class="fw-bold mb-1">Forgot Password</h5>
+  <p class="text-muted small mb-4">Enter your email to receive a reset link</p>
+  <div class="alert alert-danger d-none" id="forgot-error"></div>
+  <div class="alert alert-success d-none" id="forgot-success"></div>
+  <div class="mb-3"><label class="form-label">Email Address</label><input type="email" class="form-control" id="forgot-email" placeholder="you@example.com"/></div>
+  <button class="btn btn-primary w-100 py-2" onclick="doForgot()">Send Reset Link</button>
+  <p class="text-center text-muted small mt-3"><a href="#" class="text-primary" onclick="showAuthPage('page-login')">Back to Login</a></p>
+</div>
+</div>
+</div>
+
+<!-- SESSION WARNING -->
+<div class="session-overlay" id="session-warning">
+<div class="bg-white rounded-3 p-4 text-center" style="max-width:380px;width:100%;">
+  <i class="bi bi-clock-history text-warning" style="font-size:40px;"></i>
+  <h5 class="fw-bold mt-3">Session Expiring Soon</h5>
+  <p class="text-muted small">You will be automatically logged out in <span id="countdown-timer" class="fw-bold text-danger">60</span> seconds due to inactivity.</p>
+  <button class="btn btn-primary px-4" onclick="resetSessionTimer()">Stay Logged In</button>
+</div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none;">
+  <div class="sidebar">
+    <div class="sidebar-brand">Invoice <span>| MIS</span></div>
+    <nav class="sidebar-nav">
+      <button class="nav-link-item active" id="nav-dashboard" onclick="showDashboard()"><i class="bi bi-grid-1x2-fill"></i> Dashboard</button>
+      <button class="nav-link-item" id="nav-groups" onclick="showGroups()"><i class="bi bi-collection-fill"></i> Manage Groups</button>
+      <button class="nav-link-item" id="nav-chains" onclick="showChains()"><i class="bi bi-diagram-3-fill"></i> Manage Chain</button>
+      <button class="nav-link-item" id="nav-brands" onclick="showBrands()"><i class="bi bi-tag-fill"></i> Manage Brands</button>
+      <button class="nav-link-item" id="nav-zones" onclick="showZones()"><i class="bi bi-geo-alt-fill"></i> Manage SubZones</button>
+      <button class="nav-link-item disabled"><i class="bi bi-file-earmark-text-fill"></i> Manage Estimate</button>
+      <button class="nav-link-item disabled"><i class="bi bi-receipt-cutoff"></i> Manage Invoices</button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <div class="user-avatar" id="user-avatar">U</div>
+          <div>
+            <div class="text-white fw-semibold small" id="user-name-display">User</div>
+            <div class="text-secondary" style="font-size:11px;" id="user-role-display">role</div>
+          </div>
+        </div>
+        <button class="btn btn-outline-danger btn-sm w-100" onclick="doLogout()"><i class="bi bi-box-arrow-right"></i> Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="topbar d-flex align-items-center justify-content-between">
+      <h6 class="fw-bold mb-0" id="topbar-title">Dashboard</h6>
+      <div class="d-flex align-items-center gap-3">
+        <span class="text-muted small">Hi, <strong id="topbar-user">User</strong></span>
+        <button class="btn btn-outline-danger btn-sm" onclick="doLogout()"><i class="bi bi-box-arrow-right"></i> Logout</button>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="dash-home">
+        <div class="row g-3 mb-4">
+          <div class="col-md-3 col-sm-6"><div class="stat-card"><div class="d-flex align-items-center gap-3"><div class="stat-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-collection-fill"></i></div><div><div class="text-muted small">Total Groups</div><div class="fw-bold fs-4" id="stat-groups">0</div></div></div></div></div>
+          <div class="col-md-3 col-sm-6"><div class="stat-card"><div class="d-flex align-items-center gap-3"><div class="stat-icon bg-success bg-opacity-10 text-success"><i class="bi bi-diagram-3-fill"></i></div><div><div class="text-muted small">Total Chains</div><div class="fw-bold fs-4" id="stat-chains">0</div></div></div></div></div>
+          <div class="col-md-3 col-sm-6"><div class="stat-card"><div class="d-flex align-items-center gap-3"><div class="stat-icon bg-warning bg-opacity-10 text-warning"><i class="bi bi-tag-fill"></i></div><div><div class="text-muted small">Total Brands</div><div class="fw-bold fs-4" id="stat-brands">0</div></div></div></div></div>
+          <div class="col-md-3 col-sm-6"><div class="stat-card"><div class="d-flex align-items-center gap-3"><div class="stat-icon bg-danger bg-opacity-10 text-danger"><i class="bi bi-geo-alt-fill"></i></div><div><div class="text-muted small">Total Zones</div><div class="fw-bold fs-4" id="stat-zones">0</div></div></div></div></div>
+        </div>
+        <p class="text-muted">Welcome to the MIS &amp; Invoicing System. Use the sidebar to navigate.</p>
+      </div>
+
+      <!-- MANAGE GROUPS -->
+      <div class="page" id="dash-groups">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold mb-0">Manage Groups</h5>
+          <button class="btn btn-primary" onclick="showAddGroup()"><i class="bi bi-plus-lg"></i> Add Group</button>
+        </div>
+        <div class="table-card">
+          <table class="table mb-0">
+            <thead><tr><th>Sr.No</th><th>Group Name</th><th>Status</th><th>Edit</th><th>Delete</th></tr></thead>
+            <tbody id="groups-tbody"><tr><td colspan="5" class="text-center text-muted py-4">No groups found.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ADD GROUP -->
+      <div class="page" id="dash-add-group">
+        <h5 class="fw-bold mb-4">Add Group</h5>
+        <div class="form-section">
+          <div class="alert alert-danger d-none" id="add-group-error"></div>
+          <div class="mb-3"><label class="form-label">Enter Group Name:</label><input type="text" class="form-control" id="add-group-input" placeholder="Enter Unique Group Name"/></div>
+          <button class="btn btn-primary px-4" onclick="doAddGroup()">Add Group</button>
+        </div>
+      </div>
+
+      <!-- EDIT GROUP -->
+      <div class="page" id="dash-edit-group">
+        <h5 class="fw-bold mb-4">Edit Group</h5>
+        <div class="form-section">
+          <div class="alert alert-danger d-none" id="edit-group-error"></div>
+          <div class="mb-3"><label class="form-label">Edit Group Name:</label><input type="text" class="form-control" id="edit-group-input" placeholder="Enter Unique Group Name"/></div>
+          <input type="hidden" id="edit-group-id"/>
+          <button class="btn btn-primary px-4" onclick="doUpdateGroup()">Update</button>
+        </div>
+      </div>
+
+      <!-- MANAGE CHAINS -->
+      <div class="page" id="dash-chains">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold mb-0">Manage Chain</h5>
+          <button class="btn btn-primary" onclick="showAddChain()"><i class="bi bi-plus-lg"></i> Add Company</button>
+        </div>
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <label class="form-label mb-0 text-muted small fw-semibold">Filter by Group:</label>
+          <select class="form-select form-select-sm" id="chain-filter-group" style="width:200px;" onchange="renderChains()"><option value="">All Groups</option></select>
+        </div>
+        <div class="table-card">
+          <table class="table mb-0">
+            <thead><tr><th>Sr.No</th><th>Group Name</th><th>Company</th><th>GSTN</th><th>Edit</th><th>Delete</th></tr></thead>
+            <tbody id="chains-tbody"><tr><td colspan="6" class="text-center text-muted py-4">No chains found.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ADD CHAIN -->
+      <div class="page" id="dash-add-chain">
+        <h5 class="fw-bold mb-4">Add Company</h5>
+        <div class="form-section">
+          <div class="alert alert-danger d-none" id="add-chain-error"></div>
+          <div class="mb-3"><label class="form-label">Enter Company Name:</label><input type="text" class="form-control" id="add-chain-name" placeholder="Enter Company Name"/></div>
+          <div class="mb-3"><label class="form-label">Enter GSTN:</label><input type="text" class="form-control" id="add-chain-gstn" placeholder="Enter GST Number"/></div>
+          <div class="mb-3"><label class="form-label">Select Group:</label><select class="form-select" id="add-chain-group"><option value="">-- Select Group --</option></select></div>
+          <button class="btn btn-primary px-4" onclick="doAddChain()">Add Company</button>
+        </div>
+      </div>
+
+      <!-- EDIT CHAIN -->
+      <div class="page" id="dash-edit-chain">
+        <h5 class="fw-bold mb-4">Update Company</h5>
+        <div class="form-section">
+          <div class="alert alert-danger d-none" id="edit-chain-error"></div>
+          <div class="mb-3"><label class="form-label">Enter Company Name:</label><input type="text" class="form-control" id="edit-chain-name" placeholder="Enter Company Name"/></div>
+          <div class="mb-3"><label class="form-label">Enter GSTN:</label><input type="text" class="form-control" id="edit-chain-gstn" placeholder="Enter GST Number"/></div>
+          <div class="mb-3"><label class="form-label">Select Group:</label><select class="form-select" id="edit-chain-group"><option value="">-- Select Group --</option></select></div>
+          <input type="hidden" id="edit-chain-id"/>
+          <button class="btn btn-primary px-4" onclick="doUpdateChain()">Update</button>
+        </div>
+      </div>
+
+
+      <!-- MANAGE BRANDS -->
+      <div class="page" id="dash-brands">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold mb-0">Manage Brands</h5>
+          <button class="btn btn-primary" onclick="showAddBrand()"><i class="bi bi-plus-lg"></i> Add Brand</button>
+        </div>
+        <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
+          <div class="d-flex align-items-center gap-2">
+            <label class="form-label mb-0 text-muted small fw-semibold">Filter by Company:</label>
+            <select class="form-select form-select-sm" id="brand-filter-chain" style="width:200px;" onchange="renderBrands()"><option value="">All Companies</option></select>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <label class="form-label mb-0 text-muted small fw-semibold">Filter by Group:</label>
+            <select class="form-select form-select-sm" id="brand-filter-group" style="width:200px;" onchange="renderBrands()"><option value="">All Groups</option></select>
+          </div>
+        </div>
+        <div class="table-card">
+          <table class="table mb-0">
+            <thead><tr><th>Sr.No</th><th>Group</th><th>Company</th><th>Brand</th><th>Edit</th><th>Delete</th></tr></thead>
+            <tbody id="brands-tbody"><tr><td colspan="6" class="text-center text-muted py-4">No brands found.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ADD BRAND -->
+      <div class="page" id="dash-add-brand">
+        <h5 class="fw-bold mb-4">Add Brand</h5>
+        <div class="form-section">
+          <div class="alert alert-danger d-none" id="add-brand-error"></div>
+          <div class="mb-3">
+            <label class="form-label">Enter Brand Name:</label>
+            <input type="text" class="form-control" id="add-brand-name" placeholder="Enter Brand Name"/>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Select Company:</label>
+            <select class="form-select" id="add-brand-chain"><option value="">-- Select Company --</option></select>
+          </div>
+          <button class="btn btn-primary px-4" onclick="doAddBrand()">Add Brand</button>
+        </div>
+      </div>
+
+      <!-- EDIT BRAND -->
+      <div class="page" id="dash-edit-brand">
+        <h5 class="fw-bold mb-4">Update Brand</h5>
+        <div class="form-section">
+          <div class="alert alert-danger d-none" id="edit-brand-error"></div>
+          <div class="mb-3">
+            <label class="form-label">Enter Brand Name:</label>
+            <input type="text" class="form-control" id="edit-brand-name" placeholder="Enter Brand Name"/>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Select Company:</label>
+            <select class="form-select" id="edit-brand-chain"><option value="">-- Select Company --</option></select>
+          </div>
+          <input type="hidden" id="edit-brand-id"/>
+          <button class="btn btn-primary px-4" onclick="doUpdateBrand()">Update</button>
+        </div>
+      </div>
+
+
+      <!-- MANAGE SUBZONES -->
+      <div class="page" id="dash-zones">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold mb-0">Manage SubZones</h5>
+          <button class="btn btn-primary" onclick="showAddZone()"><i class="bi bi-plus-lg"></i> Add Zone</button>
+        </div>
+        <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
+          <div class="d-flex align-items-center gap-2">
+            <label class="form-label mb-0 text-muted small fw-semibold">Filter by Brand:</label>
+            <select class="form-select form-select-sm" id="zone-filter-brand" style="width:180px;" onchange="renderZones()"><option value="">All Brands</option></select>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <label class="form-label mb-0 text-muted small fw-semibold">Filter by Company:</label>
+            <select class="form-select form-select-sm" id="zone-filter-chain" style="width:180px;" onchange="renderZones()"><option value="">All Companies</option></select>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <label class="form-label mb-0 text-muted small fw-semibold">Filter by Group:</label>
+            <select class="form-select form-select-sm" id="zone-filter-group" style="width:180px;" onchange="renderZones()"><option value="">All Groups</option></select>
+          </div>
+        </div>
+        <div class="table-card">
+          <table class="table mb-0">
+            <thead><tr><th>Sr.No</th><th>Zone</th><th>Brand</th><th>Company</th><th>Group</th><th>Edit</th><th>Delete</th></tr></thead>
+            <tbody id="zones-tbody"><tr><td colspan="7" class="text-center text-muted py-4">No zones found.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ADD ZONE -->
+      <div class="page" id="dash-add-zone">
+        <h5 class="fw-bold mb-4">Add Zone</h5>
+        <div class="form-section">
+          <div class="alert alert-danger d-none" id="add-zone-error"></div>
+          <div class="mb-3">
+            <label class="form-label">Enter Zone Name:</label>
+            <input type="text" class="form-control" id="add-zone-name" placeholder="Enter Zone Name"/>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Select Brand:</label>
+            <select class="form-select" id="add-zone-brand"><option value="">-- Select Brand --</option></select>
+          </div>
+          <button class="btn btn-primary px-4" onclick="doAddZone()">Add zone</button>
+        </div>
+      </div>
+
+      <!-- EDIT ZONE -->
+      <div class="page" id="dash-edit-zone">
+        <h5 class="fw-bold mb-4">Update Zone</h5>
+        <div class="form-section">
+          <div class="alert alert-danger d-none" id="edit-zone-error"></div>
+          <div class="mb-3">
+            <label class="form-label">Enter Zone Name:</label>
+            <input type="text" class="form-control" id="edit-zone-name" placeholder="Enter Zone Name"/>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Select Brand:</label>
+            <select class="form-select" id="edit-zone-brand"><option value="">-- Select Brand --</option></select>
+          </div>
+          <input type="hidden" id="edit-zone-id"/>
+          <button class="btn btn-primary px-4" onclick="doUpdateZone()">Update Brand</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js">
+// ========== BRAND STATE ==========
+let brands = [];
+let nextBrandId = 1;
+
+// ========== BRAND NAVIGATION ==========
+function showBrands() {
+  activatePage('dash-brands'); activateNav('nav-brands');
+  document.getElementById('topbar-title').textContent = 'Manage Brands';
+  populateBrandFilterChain();
+  populateBrandFilterGroup();
+  renderBrands();
+}
+function showAddBrand() {
+  activatePage('dash-add-brand');
+  document.getElementById('topbar-title').textContent = 'Add Brand';
+  document.getElementById('add-brand-name').value = '';
+  hideAlert('add-brand-error');
+  populateChainDropdown('add-brand-chain');
+}
+function showEditBrand(id) {
+  const b = brands.find(x => x.brand_id === id); if (!b) return;
+  activatePage('dash-edit-brand');
+  document.getElementById('topbar-title').textContent = 'Update Brand';
+  document.getElementById('edit-brand-name').value = b.brand_name;
+  document.getElementById('edit-brand-id').value = id;
+  hideAlert('edit-brand-error');
+  populateChainDropdown('edit-brand-chain', b.chain_id);
+}
+
+// ========== POPULATE DROPDOWNS ==========
+function populateChainDropdown(selectId, selectedId = null) {
+  const sel = document.getElementById(selectId);
+  sel.innerHTML = '<option value="">-- Select Company --</option>';
+  chains.filter(c => c.is_active).forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.chain_id; opt.textContent = c.company_name;
+    if (selectedId && c.chain_id === selectedId) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+function populateBrandFilterChain() {
+  const sel = document.getElementById('brand-filter-chain');
+  sel.innerHTML = '<option value="">All Companies</option>';
+  chains.filter(c => c.is_active).forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.chain_id; opt.textContent = c.company_name;
+    sel.appendChild(opt);
+  });
+}
+function populateBrandFilterGroup() {
+  const sel = document.getElementById('brand-filter-group');
+  sel.innerHTML = '<option value="">All Groups</option>';
+  groups.filter(g => g.is_active).forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g.group_id; opt.textContent = g.group_name;
+    sel.appendChild(opt);
+  });
+}
+
+// ========== ADD BRAND ==========
+function doAddBrand() {
+  const name    = document.getElementById('add-brand-name').value.trim();
+  const chainId = parseInt(document.getElementById('add-brand-chain').value);
+  hideAlert('add-brand-error');
+  if (!name)    { showAlert('add-brand-error', 'Brand name cannot be empty.'); return; }
+  if (!chainId) { showAlert('add-brand-error', 'Please select a company.'); return; }
+  brands.push({ brand_id: nextBrandId++, brand_name: name, chain_id: chainId, is_active: true });
+  showBrands();
+}
+
+// ========== UPDATE BRAND ==========
+function doUpdateBrand() {
+  const id      = parseInt(document.getElementById('edit-brand-id').value);
+  const name    = document.getElementById('edit-brand-name').value.trim();
+  const chainId = parseInt(document.getElementById('edit-brand-chain').value);
+  hideAlert('edit-brand-error');
+  if (!name)    { showAlert('edit-brand-error', 'Brand name cannot be empty.'); return; }
+  if (!chainId) { showAlert('edit-brand-error', 'Please select a company.'); return; }
+  const b = brands.find(x => x.brand_id === id);
+  if (b) { b.brand_name = name; b.chain_id = chainId; }
+  showBrands();
+}
+
+// ========== DELETE BRAND (SOFT) ==========
+function doDeleteBrand(id) {
+  // Zone link check will be added when SubZone module is built
+  const b = brands.find(x => x.brand_id === id);
+  if (b) b.is_active = false;
+  showBrands();
+}
+
+// ========== RENDER BRANDS TABLE ==========
+function renderBrands() {
+  document.getElementById('stat-brands').textContent = brands.filter(b => b.is_active).length;
+  const filterChainId = parseInt(document.getElementById('brand-filter-chain').value) || null;
+  const filterGroupId = parseInt(document.getElementById('brand-filter-group').value) || null;
+
+  let active = brands.filter(b => b.is_active);
+  if (filterChainId) active = active.filter(b => b.chain_id === filterChainId);
+  if (filterGroupId) {
+    const groupChainIds = chains.filter(c => c.group_id === filterGroupId && c.is_active).map(c => c.chain_id);
+    active = active.filter(b => groupChainIds.includes(b.chain_id));
+  }
+
+  const tbody = document.getElementById('brands-tbody');
+  if (active.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">No brands found.</td></tr>'; return;
+  }
+  tbody.innerHTML = active.map((b, i) => {
+    const chain = chains.find(c => c.chain_id === b.chain_id);
+    const group = chain ? groups.find(g => g.group_id === chain.group_id) : null;
+    return `<tr>
+      <td>${i+1}</td>
+      <td>${group ? group.group_name : '-'}</td>
+      <td>${chain ? chain.company_name : '-'}</td>
+      <td><span class="fw-semibold">${b.brand_name}</span></td>
+      <td><button class="btn btn-warning btn-sm" onclick="showEditBrand(${b.brand_id})"><i class="bi bi-pencil-fill"></i> Edit</button></td>
+      <td><button class="btn btn-danger btn-sm" onclick="doDeleteBrand(${b.brand_id})"><i class="bi bi-trash-fill"></i> Delete</button></td>
+    </tr>`;
+  }).join('');
+}
+
+
+// ========== ZONE STATE ==========
+let zones = [];
+let nextZoneId = 1;
+
+// ========== ZONE NAVIGATION ==========
+function showZones() {
+  activatePage('dash-zones'); activateNav('nav-zones');
+  document.getElementById('topbar-title').textContent = 'Manage SubZones';
+  populateZoneFilterBrand();
+  populateZoneFilterChain();
+  populateZoneFilterGroup();
+  renderZones();
+}
+function showAddZone() {
+  activatePage('dash-add-zone');
+  document.getElementById('topbar-title').textContent = 'Add Zone';
+  document.getElementById('add-zone-name').value = '';
+  hideAlert('add-zone-error');
+  populateBrandDropdown('add-zone-brand');
+}
+function showEditZone(id) {
+  const z = zones.find(x => x.zone_id === id); if (!z) return;
+  activatePage('dash-edit-zone');
+  document.getElementById('topbar-title').textContent = 'Update Zone';
+  document.getElementById('edit-zone-name').value = z.zone_name;
+  document.getElementById('edit-zone-id').value = id;
+  hideAlert('edit-zone-error');
+  populateBrandDropdown('edit-zone-brand', z.brand_id);
+}
+
+// ========== POPULATE BRAND DROPDOWN ==========
+function populateBrandDropdown(selectId, selectedId = null) {
+  const sel = document.getElementById(selectId);
+  sel.innerHTML = '<option value="">-- Select Brand --</option>';
+  brands.filter(b => b.is_active).forEach(b => {
+    const opt = document.createElement('option');
+    opt.value = b.brand_id; opt.textContent = b.brand_name;
+    if (selectedId && b.brand_id === selectedId) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+function populateZoneFilterBrand() {
+  const sel = document.getElementById('zone-filter-brand');
+  sel.innerHTML = '<option value="">All Brands</option>';
+  brands.filter(b => b.is_active).forEach(b => {
+    const opt = document.createElement('option');
+    opt.value = b.brand_id; opt.textContent = b.brand_name;
+    sel.appendChild(opt);
+  });
+}
+function populateZoneFilterChain() {
+  const sel = document.getElementById('zone-filter-chain');
+  sel.innerHTML = '<option value="">All Companies</option>';
+  chains.filter(c => c.is_active).forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.chain_id; opt.textContent = c.company_name;
+    sel.appendChild(opt);
+  });
+}
+function populateZoneFilterGroup() {
+  const sel = document.getElementById('zone-filter-group');
+  sel.innerHTML = '<option value="">All Groups</option>';
+  groups.filter(g => g.is_active).forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g.group_id; opt.textContent = g.group_name;
+    sel.appendChild(opt);
+  });
+}
+
+// ========== ADD ZONE ==========
+function doAddZone() {
+  const name    = document.getElementById('add-zone-name').value.trim();
+  const brandId = parseInt(document.getElementById('add-zone-brand').value);
+  hideAlert('add-zone-error');
+  if (!name)    { showAlert('add-zone-error', 'Zone name cannot be empty.'); return; }
+  if (!brandId) { showAlert('add-zone-error', 'Please select a brand.'); return; }
+  zones.push({ zone_id: nextZoneId++, zone_name: name, brand_id: brandId, is_active: true });
+  showZones();
+}
+
+// ========== UPDATE ZONE ==========
+function doUpdateZone() {
+  const id      = parseInt(document.getElementById('edit-zone-id').value);
+  const name    = document.getElementById('edit-zone-name').value.trim();
+  const brandId = parseInt(document.getElementById('edit-zone-brand').value);
+  hideAlert('edit-zone-error');
+  if (!name)    { showAlert('edit-zone-error', 'Zone name cannot be empty.'); return; }
+  if (!brandId) { showAlert('edit-zone-error', 'Please select a brand.'); return; }
+  const z = zones.find(x => x.zone_id === id);
+  if (z) { z.zone_name = name; z.brand_id = brandId; }
+  showZones();
+}
+
+// ========== DELETE ZONE (SOFT) ==========
+function doDeleteZone(id) {
+  const z = zones.find(x => x.zone_id === id);
+  if (z) z.is_active = false;
+  showZones();
+}
+
+// ========== RENDER ZONES TABLE ==========
+function renderZones() {
+  document.getElementById('stat-zones').textContent = zones.filter(z => z.is_active).length;
+  const filterBrandId = parseInt(document.getElementById('zone-filter-brand').value) || null;
+  const filterChainId = parseInt(document.getElementById('zone-filter-chain').value) || null;
+  const filterGroupId = parseInt(document.getElementById('zone-filter-group').value) || null;
+
+  let active = zones.filter(z => z.is_active);
+  if (filterBrandId) active = active.filter(z => z.brand_id === filterBrandId);
+  if (filterChainId) {
+    const brandIds = brands.filter(b => b.chain_id === filterChainId && b.is_active).map(b => b.brand_id);
+    active = active.filter(z => brandIds.includes(z.brand_id));
+  }
+  if (filterGroupId) {
+    const chainIds  = chains.filter(c => c.group_id === filterGroupId && c.is_active).map(c => c.chain_id);
+    const brandIds  = brands.filter(b => chainIds.includes(b.chain_id) && b.is_active).map(b => b.brand_id);
+    active = active.filter(z => brandIds.includes(z.brand_id));
+  }
+
+  const tbody = document.getElementById('zones-tbody');
+  if (active.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No zones found.</td></tr>'; return;
+  }
+  tbody.innerHTML = active.map((z, i) => {
+    const brand = brands.find(b => b.brand_id === z.brand_id);
+    const chain = brand ? chains.find(c => c.chain_id === brand.chain_id) : null;
+    const group = chain ? groups.find(g => g.group_id === chain.group_id) : null;
+    return `<tr>
+      <td>${i+1}</td>
+      <td><span class="fw-semibold">${z.zone_name}</span></td>
+      <td>${brand ? brand.brand_name : '-'}</td>
+      <td>${chain ? chain.company_name : '-'}</td>
+      <td>${group ? group.group_name : '-'}</td>
+      <td><button class="btn btn-warning btn-sm" onclick="showEditZone(${z.zone_id})"><i class="bi bi-pencil-fill"></i> Edit</button></td>
+      <td><button class="btn btn-danger btn-sm" onclick="doDeleteZone(${z.zone_id})"><i class="bi bi-trash-fill"></i> Delete</button></td>
+    </tr>`;
+  }).join('');
+}
+
+</script>
+<script>
+let currentUser=null,groups=[],chains=[],nextGroupId=1,nextChainId=1;
+let users=[{user_id:1,full_name:'Admin User',email:'admin@codeb.com',password:'admin123',role:'admin',status:'active'}];
+const SESSION_TIMEOUT=15*60*1000,WARNING_BEFORE=60*1000;
+let sessionTimer=null,warningTimer=null,countdownInterval=null;
+
+function resetSessionTimer(){
+  document.getElementById('session-warning').classList.remove('show');
+  clearInterval(countdownInterval);clearTimeout(sessionTimer);clearTimeout(warningTimer);
+  if(!currentUser)return;
+  warningTimer=setTimeout(showSessionWarning,SESSION_TIMEOUT-WARNING_BEFORE);
+  sessionTimer=setTimeout(()=>{clearInterval(countdownInterval);doLogout();},SESSION_TIMEOUT);
+}
+function showSessionWarning(){
+  document.getElementById('session-warning').classList.add('show');
+  let secs=60;document.getElementById('countdown-timer').textContent=secs;
+  countdownInterval=setInterval(()=>{secs--;const el=document.getElementById('countdown-timer');if(el)el.textContent=secs;if(secs<=0)clearInterval(countdownInterval);},1000);
+}
+['mousemove','keydown','click','scroll','touchstart'].forEach(e=>document.addEventListener(e,()=>{if(currentUser)resetSessionTimer();}));
+
+function showAuthPage(id){document.querySelectorAll('.auth-page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function activatePage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function activateNav(id){document.querySelectorAll('.nav-link-item').forEach(n=>n.classList.remove('active'));const el=document.getElementById(id);if(el)el.classList.add('active');}
+function showAlert(id,msg){const el=document.getElementById(id);if(el){el.textContent=msg;el.classList.remove('d-none');}}
+function hideAlert(id){const el=document.getElementById(id);if(el)el.classList.add('d-none');}
+
+function showDashboard(){
+  activatePage('dash-home');activateNav('nav-dashboard');
+  document.getElementById('topbar-title').textContent='Dashboard';
+  document.getElementById('stat-groups').textContent=groups.filter(g=>g.is_active).length;
+  document.getElementById('stat-chains').textContent=chains.filter(c=>c.is_active).length;
+  document.getElementById('stat-brands').textContent=brands.filter(b=>b.is_active).length;
+  document.getElementById('stat-zones').textContent=zones.filter(z=>z.is_active).length;
+}
+
+function doLogin(){
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-password').value.trim();
+  hideAlert('login-error');
+  if(!email||!pass){showAlert('login-error','Please enter email and password.');return;}
+  const user=users.find(u=>u.email===email&&u.password===pass&&u.status==='active');
+  if(!user){showAlert('login-error','Invalid email or password.');return;}
+  currentUser=user;launchApp();
+}
+function doRegister(){
+  const name=document.getElementById('reg-name').value.trim();
+  const email=document.getElementById('reg-email').value.trim();
+  const pass=document.getElementById('reg-password').value.trim();
+  const role=document.getElementById('reg-role').value;
+  hideAlert('reg-error');hideAlert('reg-success');
+  if(!name||!email||!pass||!role){showAlert('reg-error','All fields are required.');return;}
+  if(users.find(u=>u.email===email)){showAlert('reg-error','Email already registered.');return;}
+  users.push({user_id:users.length+1,full_name:name,email,password:pass,role,status:'active'});
+  showAlert('reg-success','Registration successful! You can now login.');
+  setTimeout(()=>showAuthPage('page-login'),1500);
+}
+function doForgot(){
+  const email=document.getElementById('forgot-email').value.trim();
+  hideAlert('forgot-error');hideAlert('forgot-success');
+  if(!email){showAlert('forgot-error','Please enter your email.');return;}
+  if(!users.find(u=>u.email===email)){showAlert('forgot-error','Email not found.');return;}
+  showAlert('forgot-success','Password reset link sent to your email.');
+}
+function doLogout(){
+  clearTimeout(sessionTimer);clearTimeout(warningTimer);clearInterval(countdownInterval);
+  document.getElementById('session-warning').classList.remove('show');
+  currentUser=null;document.getElementById('app').style.display='none';showAuthPage('page-login');
+}
+function launchApp(){
+  document.querySelectorAll('.auth-page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('app').style.display='block';
+  document.getElementById('user-avatar').textContent=currentUser.full_name.charAt(0).toUpperCase();
+  document.getElementById('user-name-display').textContent=currentUser.full_name;
+  document.getElementById('user-role-display').textContent=currentUser.role;
+  document.getElementById('topbar-user').textContent=currentUser.full_name;
+  resetSessionTimer();showDashboard();
+}
+
+// GROUP MANAGEMENT
+function showGroups(){activatePage('dash-groups');activateNav('nav-groups');document.getElementById('topbar-title').textContent='Manage Groups';renderGroups();}
+function showAddGroup(){activatePage('dash-add-group');document.getElementById('topbar-title').textContent='Add Group';document.getElementById('add-group-input').value='';hideAlert('add-group-error');}
+function showEditGroup(id){
+  const g=groups.find(x=>x.group_id===id);if(!g)return;
+  activatePage('dash-edit-group');document.getElementById('topbar-title').textContent='Edit Group';
+  document.getElementById('edit-group-input').value=g.group_name;document.getElementById('edit-group-id').value=id;hideAlert('edit-group-error');
+}
+function doAddGroup(){
+  const name=document.getElementById('add-group-input').value.trim();hideAlert('add-group-error');
+  if(!name){showAlert('add-group-error','Group name cannot be empty.');return;}
+  if(groups.find(g=>g.group_name.toLowerCase()===name.toLowerCase()&&g.is_active)){showAlert('add-group-error','Group Already Exists!!!');return;}
+  groups.push({group_id:nextGroupId++,group_name:name,is_active:true});showGroups();
+}
+function doUpdateGroup(){
+  const id=parseInt(document.getElementById('edit-group-id').value);
+  const name=document.getElementById('edit-group-input').value.trim();hideAlert('edit-group-error');
+  if(!name){showAlert('edit-group-error','Group name cannot be empty.');return;}
+  if(groups.find(g=>g.group_name.toLowerCase()===name.toLowerCase()&&g.group_id!==id&&g.is_active)){showAlert('edit-group-error','Group Already Exists!!!');return;}
+  const g=groups.find(x=>x.group_id===id);if(g)g.group_name=name;showGroups();
+}
+function doDeleteGroup(id){
+  if(chains.find(c=>c.group_id===id&&c.is_active)){alert('Cannot delete group linked to a Chain.');return;}
+  const g=groups.find(x=>x.group_id===id);if(g)g.is_active=false;showGroups();
+}
+function renderGroups(){
+  document.getElementById('stat-groups').textContent=groups.filter(g=>g.is_active).length;
+  const active=groups.filter(g=>g.is_active);
+  const tbody=document.getElementById('groups-tbody');
+  if(active.length===0){tbody.innerHTML='<tr><td colspan="5" class="text-center text-muted py-4">No groups found.</td></tr>';return;}
+  tbody.innerHTML=active.map((g,i)=>`<tr><td>${i+1}</td><td><span class="fw-semibold">${g.group_name}</span></td><td><span class="badge-active">Active</span></td><td><button class="btn btn-warning btn-sm" onclick="showEditGroup(${g.group_id})"><i class="bi bi-pencil-fill"></i> Edit</button></td><td><button class="btn btn-danger btn-sm" onclick="doDeleteGroup(${g.group_id})"><i class="bi bi-trash-fill"></i> Delete</button></td></tr>`).join('');
+}
+
+// CHAIN MANAGEMENT
+function showChains(){activatePage('dash-chains');activateNav('nav-chains');document.getElementById('topbar-title').textContent='Manage Chain';populateGroupFilter();renderChains();}
+function showAddChain(){
+  activatePage('dash-add-chain');document.getElementById('topbar-title').textContent='Add Company';
+  document.getElementById('add-chain-name').value='';document.getElementById('add-chain-gstn').value='';hideAlert('add-chain-error');populateGroupDropdown('add-chain-group');
+}
+function showEditChain(id){
+  const c=chains.find(x=>x.chain_id===id);if(!c)return;
+  activatePage('dash-edit-chain');document.getElementById('topbar-title').textContent='Update Company';
+  document.getElementById('edit-chain-name').value=c.company_name;document.getElementById('edit-chain-gstn').value=c.gstn_no;document.getElementById('edit-chain-id').value=id;hideAlert('edit-chain-error');populateGroupDropdown('edit-chain-group',c.group_id);
+}
+function populateGroupDropdown(selectId,selectedId=null){
+  const sel=document.getElementById(selectId);sel.innerHTML='<option value="">-- Select Group --</option>';
+  groups.filter(g=>g.is_active).forEach(g=>{const opt=document.createElement('option');opt.value=g.group_id;opt.textContent=g.group_name;if(selectedId&&g.group_id===selectedId)opt.selected=true;sel.appendChild(opt);});
+}
+function populateGroupFilter(){
+  const sel=document.getElementById('chain-filter-group');sel.innerHTML='<option value="">All Groups</option>';
+  groups.filter(g=>g.is_active).forEach(g=>{const opt=document.createElement('option');opt.value=g.group_id;opt.textContent=g.group_name;sel.appendChild(opt);});
+}
+function doAddChain(){
+  const name=document.getElementById('add-chain-name').value.trim();
+  const gstn=document.getElementById('add-chain-gstn').value.trim();
+  const grpId=parseInt(document.getElementById('add-chain-group').value);
+  hideAlert('add-chain-error');
+  if(!name){showAlert('add-chain-error','Company name cannot be empty.');return;}
+  if(!gstn){showAlert('add-chain-error','GSTN number cannot be empty.');return;}
+  if(!grpId){showAlert('add-chain-error','Please select a group.');return;}
+  if(chains.find(c=>c.gstn_no===gstn&&c.is_active)){showAlert('add-chain-error','GSTN number already exists.');return;}
+  chains.push({chain_id:nextChainId++,company_name:name,gstn_no:gstn,group_id:grpId,is_active:true});showChains();
+}
+function doUpdateChain(){
+  const id=parseInt(document.getElementById('edit-chain-id').value);
+  const name=document.getElementById('edit-chain-name').value.trim();
+  const gstn=document.getElementById('edit-chain-gstn').value.trim();
+  const grpId=parseInt(document.getElementById('edit-chain-group').value);
+  hideAlert('edit-chain-error');
+  if(!name){showAlert('edit-chain-error','Company name cannot be empty.');return;}
+  if(!gstn){showAlert('edit-chain-error','GSTN number cannot be empty.');return;}
+  if(!grpId){showAlert('edit-chain-error','Please select a group.');return;}
+  if(chains.find(c=>c.gstn_no===gstn&&c.chain_id!==id&&c.is_active)){showAlert('edit-chain-error','GSTN number already exists.');return;}
+  const c=chains.find(x=>x.chain_id===id);if(c){c.company_name=name;c.gstn_no=gstn;c.group_id=grpId;}showChains();
+}
+function doDeleteChain(id){
+  const c=chains.find(x=>x.chain_id===id);if(c)c.is_active=false;showChains();
+}
+function renderChains(){
+  document.getElementById('stat-chains').textContent=chains.filter(c=>c.is_active).length;
+  document.getElementById('stat-brands').textContent=brands.filter(b=>b.is_active).length;
+  document.getElementById('stat-zones').textContent=zones.filter(z=>z.is_active).length;
+  const filterGrpId=parseInt(document.getElementById('chain-filter-group').value)||null;
+  let active=chains.filter(c=>c.is_active);
+  if(filterGrpId)active=active.filter(c=>c.group_id===filterGrpId);
+  const tbody=document.getElementById('chains-tbody');
+  if(active.length===0){tbody.innerHTML='<tr><td colspan="6" class="text-center text-muted py-4">No chains found.</td></tr>';return;}
+  tbody.innerHTML=active.map((c,i)=>{
+    const grp=groups.find(g=>g.group_id===c.group_id);
+    return `<tr><td>${i+1}</td><td>${grp?grp.group_name:'-'}</td><td><span class="fw-semibold">${c.company_name}</span></td><td><code>${c.gstn_no}</code></td><td><button class="btn btn-warning btn-sm" onclick="showEditChain(${c.chain_id})"><i class="bi bi-pencil-fill"></i> Edit</button></td><td><button class="btn btn-danger btn-sm" onclick="doDeleteChain(${c.chain_id})"><i class="bi bi-trash-fill"></i> Delete</button></td></tr>`;
+  }).join('');
+}
+
+// ========== BRAND STATE ==========
+let brands = [];
+let nextBrandId = 1;
+
+// ========== BRAND NAVIGATION ==========
+function showBrands() {
+  activatePage('dash-brands'); activateNav('nav-brands');
+  document.getElementById('topbar-title').textContent = 'Manage Brands';
+  populateBrandFilterChain();
+  populateBrandFilterGroup();
+  renderBrands();
+}
+function showAddBrand() {
+  activatePage('dash-add-brand');
+  document.getElementById('topbar-title').textContent = 'Add Brand';
+  document.getElementById('add-brand-name').value = '';
+  hideAlert('add-brand-error');
+  populateChainDropdown('add-brand-chain');
+}
+function showEditBrand(id) {
+  const b = brands.find(x => x.brand_id === id); if (!b) return;
+  activatePage('dash-edit-brand');
+  document.getElementById('topbar-title').textContent = 'Update Brand';
+  document.getElementById('edit-brand-name').value = b.brand_name;
+  document.getElementById('edit-brand-id').value = id;
+  hideAlert('edit-brand-error');
+  populateChainDropdown('edit-brand-chain', b.chain_id);
+}
+
+// ========== POPULATE DROPDOWNS ==========
+function populateChainDropdown(selectId, selectedId = null) {
+  const sel = document.getElementById(selectId);
+  sel.innerHTML = '<option value="">-- Select Company --</option>';
+  chains.filter(c => c.is_active).forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.chain_id; opt.textContent = c.company_name;
+    if (selectedId && c.chain_id === selectedId) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+function populateBrandFilterChain() {
+  const sel = document.getElementById('brand-filter-chain');
+  sel.innerHTML = '<option value="">All Companies</option>';
+  chains.filter(c => c.is_active).forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.chain_id; opt.textContent = c.company_name;
+    sel.appendChild(opt);
+  });
+}
+function populateBrandFilterGroup() {
+  const sel = document.getElementById('brand-filter-group');
+  sel.innerHTML = '<option value="">All Groups</option>';
+  groups.filter(g => g.is_active).forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g.group_id; opt.textContent = g.group_name;
+    sel.appendChild(opt);
+  });
+}
+
+// ========== ADD BRAND ==========
+function doAddBrand() {
+  const name    = document.getElementById('add-brand-name').value.trim();
+  const chainId = parseInt(document.getElementById('add-brand-chain').value);
+  hideAlert('add-brand-error');
+  if (!name)    { showAlert('add-brand-error', 'Brand name cannot be empty.'); return; }
+  if (!chainId) { showAlert('add-brand-error', 'Please select a company.'); return; }
+  brands.push({ brand_id: nextBrandId++, brand_name: name, chain_id: chainId, is_active: true });
+  showBrands();
+}
+
+// ========== UPDATE BRAND ==========
+function doUpdateBrand() {
+  const id      = parseInt(document.getElementById('edit-brand-id').value);
+  const name    = document.getElementById('edit-brand-name').value.trim();
+  const chainId = parseInt(document.getElementById('edit-brand-chain').value);
+  hideAlert('edit-brand-error');
+  if (!name)    { showAlert('edit-brand-error', 'Brand name cannot be empty.'); return; }
+  if (!chainId) { showAlert('edit-brand-error', 'Please select a company.'); return; }
+  const b = brands.find(x => x.brand_id === id);
+  if (b) { b.brand_name = name; b.chain_id = chainId; }
+  showBrands();
+}
+
+// ========== DELETE BRAND (SOFT) ==========
+function doDeleteBrand(id) {
+  // Zone link check will be added when SubZone module is built
+  const b = brands.find(x => x.brand_id === id);
+  if (b) b.is_active = false;
+  showBrands();
+}
+
+// ========== RENDER BRANDS TABLE ==========
+function renderBrands() {
+  document.getElementById('stat-brands').textContent = brands.filter(b => b.is_active).length;
+  const filterChainId = parseInt(document.getElementById('brand-filter-chain').value) || null;
+  const filterGroupId = parseInt(document.getElementById('brand-filter-group').value) || null;
+
+  let active = brands.filter(b => b.is_active);
+  if (filterChainId) active = active.filter(b => b.chain_id === filterChainId);
+  if (filterGroupId) {
+    const groupChainIds = chains.filter(c => c.group_id === filterGroupId && c.is_active).map(c => c.chain_id);
+    active = active.filter(b => groupChainIds.includes(b.chain_id));
+  }
+
+  const tbody = document.getElementById('brands-tbody');
+  if (active.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">No brands found.</td></tr>'; return;
+  }
+  tbody.innerHTML = active.map((b, i) => {
+    const chain = chains.find(c => c.chain_id === b.chain_id);
+    const group = chain ? groups.find(g => g.group_id === chain.group_id) : null;
+    return `<tr>
+      <td>${i+1}</td>
+      <td>${group ? group.group_name : '-'}</td>
+      <td>${chain ? chain.company_name : '-'}</td>
+      <td><span class="fw-semibold">${b.brand_name}</span></td>
+      <td><button class="btn btn-warning btn-sm" onclick="showEditBrand(${b.brand_id})"><i class="bi bi-pencil-fill"></i> Edit</button></td>
+      <td><button class="btn btn-danger btn-sm" onclick="doDeleteBrand(${b.brand_id})"><i class="bi bi-trash-fill"></i> Delete</button></td>
+    </tr>`;
+  }).join('');
+}
+
+
+// ========== ZONE STATE ==========
+let zones = [];
+let nextZoneId = 1;
+
+// ========== ZONE NAVIGATION ==========
+function showZones() {
+  activatePage('dash-zones'); activateNav('nav-zones');
+  document.getElementById('topbar-title').textContent = 'Manage SubZones';
+  populateZoneFilterBrand();
+  populateZoneFilterChain();
+  populateZoneFilterGroup();
+  renderZones();
+}
+function showAddZone() {
+  activatePage('dash-add-zone');
+  document.getElementById('topbar-title').textContent = 'Add Zone';
+  document.getElementById('add-zone-name').value = '';
+  hideAlert('add-zone-error');
+  populateBrandDropdown('add-zone-brand');
+}
+function showEditZone(id) {
+  const z = zones.find(x => x.zone_id === id); if (!z) return;
+  activatePage('dash-edit-zone');
+  document.getElementById('topbar-title').textContent = 'Update Zone';
+  document.getElementById('edit-zone-name').value = z.zone_name;
+  document.getElementById('edit-zone-id').value = id;
+  hideAlert('edit-zone-error');
+  populateBrandDropdown('edit-zone-brand', z.brand_id);
+}
+
+// ========== POPULATE BRAND DROPDOWN ==========
+function populateBrandDropdown(selectId, selectedId = null) {
+  const sel = document.getElementById(selectId);
+  sel.innerHTML = '<option value="">-- Select Brand --</option>';
+  brands.filter(b => b.is_active).forEach(b => {
+    const opt = document.createElement('option');
+    opt.value = b.brand_id; opt.textContent = b.brand_name;
+    if (selectedId && b.brand_id === selectedId) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+function populateZoneFilterBrand() {
+  const sel = document.getElementById('zone-filter-brand');
+  sel.innerHTML = '<option value="">All Brands</option>';
+  brands.filter(b => b.is_active).forEach(b => {
+    const opt = document.createElement('option');
+    opt.value = b.brand_id; opt.textContent = b.brand_name;
+    sel.appendChild(opt);
+  });
+}
+function populateZoneFilterChain() {
+  const sel = document.getElementById('zone-filter-chain');
+  sel.innerHTML = '<option value="">All Companies</option>';
+  chains.filter(c => c.is_active).forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.chain_id; opt.textContent = c.company_name;
+    sel.appendChild(opt);
+  });
+}
+function populateZoneFilterGroup() {
+  const sel = document.getElementById('zone-filter-group');
+  sel.innerHTML = '<option value="">All Groups</option>';
+  groups.filter(g => g.is_active).forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g.group_id; opt.textContent = g.group_name;
+    sel.appendChild(opt);
+  });
+}
+
+// ========== ADD ZONE ==========
+function doAddZone() {
+  const name    = document.getElementById('add-zone-name').value.trim();
+  const brandId = parseInt(document.getElementById('add-zone-brand').value);
+  hideAlert('add-zone-error');
+  if (!name)    { showAlert('add-zone-error', 'Zone name cannot be empty.'); return; }
+  if (!brandId) { showAlert('add-zone-error', 'Please select a brand.'); return; }
+  zones.push({ zone_id: nextZoneId++, zone_name: name, brand_id: brandId, is_active: true });
+  showZones();
+}
+
+// ========== UPDATE ZONE ==========
+function doUpdateZone() {
+  const id      = parseInt(document.getElementById('edit-zone-id').value);
+  const name    = document.getElementById('edit-zone-name').value.trim();
+  const brandId = parseInt(document.getElementById('edit-zone-brand').value);
+  hideAlert('edit-zone-error');
+  if (!name)    { showAlert('edit-zone-error', 'Zone name cannot be empty.'); return; }
+  if (!brandId) { showAlert('edit-zone-error', 'Please select a brand.'); return; }
+  const z = zones.find(x => x.zone_id === id);
+  if (z) { z.zone_name = name; z.brand_id = brandId; }
+  showZones();
+}
+
+// ========== DELETE ZONE (SOFT) ==========
+function doDeleteZone(id) {
+  const z = zones.find(x => x.zone_id === id);
+  if (z) z.is_active = false;
+  showZones();
+}
+
+// ========== RENDER ZONES TABLE ==========
+function renderZones() {
+  document.getElementById('stat-zones').textContent = zones.filter(z => z.is_active).length;
+  const filterBrandId = parseInt(document.getElementById('zone-filter-brand').value) || null;
+  const filterChainId = parseInt(document.getElementById('zone-filter-chain').value) || null;
+  const filterGroupId = parseInt(document.getElementById('zone-filter-group').value) || null;
+
+  let active = zones.filter(z => z.is_active);
+  if (filterBrandId) active = active.filter(z => z.brand_id === filterBrandId);
+  if (filterChainId) {
+    const brandIds = brands.filter(b => b.chain_id === filterChainId && b.is_active).map(b => b.brand_id);
+    active = active.filter(z => brandIds.includes(z.brand_id));
+  }
+  if (filterGroupId) {
+    const chainIds  = chains.filter(c => c.group_id === filterGroupId && c.is_active).map(c => c.chain_id);
+    const brandIds  = brands.filter(b => chainIds.includes(b.chain_id) && b.is_active).map(b => b.brand_id);
+    active = active.filter(z => brandIds.includes(z.brand_id));
+  }
+
+  const tbody = document.getElementById('zones-tbody');
+  if (active.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No zones found.</td></tr>'; return;
+  }
+  tbody.innerHTML = active.map((z, i) => {
+    const brand = brands.find(b => b.brand_id === z.brand_id);
+    const chain = brand ? chains.find(c => c.chain_id === brand.chain_id) : null;
+    const group = chain ? groups.find(g => g.group_id === chain.group_id) : null;
+    return `<tr>
+      <td>${i+1}</td>
+      <td><span class="fw-semibold">${z.zone_name}</span></td>
+      <td>${brand ? brand.brand_name : '-'}</td>
+      <td>${chain ? chain.company_name : '-'}</td>
+      <td>${group ? group.group_name : '-'}</td>
+      <td><button class="btn btn-warning btn-sm" onclick="showEditZone(${z.zone_id})"><i class="bi bi-pencil-fill"></i> Edit</button></td>
+      <td><button class="btn btn-danger btn-sm" onclick="doDeleteZone(${z.zone_id})"><i class="bi bi-trash-fill"></i> Delete</button></td>
+    </tr>`;
+  }).join('');
+}
+
+</script>
+</body>
+</html>
